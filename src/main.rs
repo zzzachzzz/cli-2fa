@@ -1,3 +1,8 @@
+mod totp;
+
 fn main() {
-    println!("Hello, world!");
+    let secret: &[u8] = b"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA====";
+    let otp = totp::generate_totp(&secret);
+    println!("{}", &otp);
 }
+

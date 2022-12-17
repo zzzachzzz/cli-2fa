@@ -8,3 +8,9 @@ name = "2fa"
 path = "src/main.rs"
 
 [dependencies]
+data-encoding = "2.3.3"
+hmac = "0.12.1"
+sha1 = "0.10.5"
+
+[dev-dependencies]
+chrono = "0.4.23"
