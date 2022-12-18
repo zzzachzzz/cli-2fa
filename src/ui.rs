@@ -1,9 +1,11 @@
 use std::io::Write;
+use std::time::Duration;
 use termcolor as tc;
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 use dialoguer as dg;
 use indicatif::ProgressBar;
 use crossterm as ct;
+use crossterm::{event, terminal};
 
 // Colors with termcolor
 pub fn example1() -> Result<(), std::io::Error> {
@@ -68,49 +70,37 @@ pub fn example4() {
     println!("begin_nano: {}", &begin_nano);
 
     let bar = ProgressBar::new(interval);
-    std::thread::sleep(std::time::Duration::new(0, begin_nano as u32));
+    std::thread::sleep(Duration::new(0, begin_nano as u32));
 
-    // Why + 1 ? Is it because we want to show:
-    // - The time remaining
-    // - A ticking clock
-    loop {
+    let duration_1_sec = Duration::new(1, 0);
+    terminal::enable_raw_mode().unwrap();
+    'infinite: loop {
         for sec in (1 .. begin_sec + 1).rev() {
             bar.set_position(sec);
-            std::thread::sleep(std::time::Duration::new(1, 0));
+            // Doubles as a sleep, during which we listen for a key event to quit
+            if check_quit_keypress(duration_1_sec) { break 'infinite; }
         }
         begin_sec = interval;
     }
+    terminal::disable_raw_mode().unwrap();
 }
 
-pub fn example5() -> crossterm::Result<()> {
-    ct::terminal::enable_raw_mode().unwrap();
-
-    loop {
-        if ct::event::poll(std::time::Duration::from_secs(10))? {
-            match ct::event::read()? {
-                ct::event::Event::Key(kv) => {
-                    // kv.modifiers & kv.
-                    if kv.code == ct::event::KeyCode::Char('q') {
-                        println!("q pressed");
-                        break;
-                    } else if kv.code == ct::event::KeyCode::Char('c') && (kv.modifiers & ct::event::KeyModifiers::CONTROL) == ct::event::KeyModifiers::CONTROL {
-                        println!("<C-c> pressed");
-                        break;
-                    } else {
-                        println!("other key pressed");
-                    }
-                },
-                _ => {
-                    println!("other key event");
-                },
-            }
-            println!("after match");
+pub fn check_quit_keypress(duration: Duration) -> bool {
+    if event::poll(duration).unwrap() {
+        match ct::event::read().unwrap() {
+            ct::event::Event::Key(ke) => {
+                if ke.code == ct::event::KeyCode::Char('q') {
+                    return true;
+                } else if
+                    ke.code == event::KeyCode::Char('c')
+                    && (ke.modifiers & event::KeyModifiers::CONTROL) == event::KeyModifiers::CONTROL
+                {
+                    return true;
+                }
+            },
+            _ => {},
         }
-        println!("after poll");
     }
-
-    ct::terminal::disable_raw_mode().unwrap();
-
-    Ok(())
+    false
 }
 
