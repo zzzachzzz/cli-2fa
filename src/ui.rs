@@ -5,7 +5,11 @@ use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 use dialoguer as dg;
 use indicatif::ProgressBar;
 use crossterm as ct;
-use crossterm::{event, terminal};
+use crossterm::{
+    event, terminal, style::{self, Stylize},
+    QueueableCommand, ExecutableCommand
+};
+use crate::totp;
 
 // Colors with termcolor
 pub fn example1() -> Result<(), std::io::Error> {
@@ -59,7 +63,9 @@ pub fn example3() {
 }
 
 pub fn example4() {
-    let interval: u64 = 30;
+    let interval: u64 = 5;
+
+    let mut stdout = std::io::stdout();
 
     let dur = std::time::SystemTime::elapsed(&std::time::UNIX_EPOCH).unwrap();
     println!("dur: {:?}", &dur);
@@ -69,20 +75,39 @@ pub fn example4() {
     println!("begin_sec: {}", &begin_sec);
     println!("begin_nano: {}", &begin_nano);
 
-    let bar = ProgressBar::new(interval);
     std::thread::sleep(Duration::new(0, begin_nano as u32));
 
+    // let secret: &[u8] = b"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA====";
+    // let x = totp::generate_totp(secret);
+
+    stdout.execute(ct::terminal::Clear(ct::terminal::ClearType::All)).unwrap();
+    let (cols, rows) = ct::terminal::size().unwrap();
+    stdout.execute(ct::cursor::MoveTo(cols - 1, rows - 1)).unwrap();
+
+    let bar = ProgressBar::new(interval);
+    stdout.execute(ct::cursor::SavePosition).unwrap();
+
+    let mut i = 0;
     let duration_1_sec = Duration::new(1, 0);
     terminal::enable_raw_mode().unwrap();
     'infinite: loop {
+        stdout.queue(ct::cursor::MoveTo(0, 1)).unwrap();
+        stdout.queue(style::PrintStyledContent(format!("Output\t\t{}", &i).magenta())).unwrap();
+        // stdout.queue(ct::cursor::MoveToRow(rows)).unwrap();
+        // stdout.queue(ct::cursor::RestorePosition).unwrap();
+        stdout.flush().unwrap();
+
         for sec in (1 .. begin_sec + 1).rev() {
             bar.set_position(sec);
             // Doubles as a sleep, during which we listen for a key event to quit
             if check_quit_keypress(duration_1_sec) { break 'infinite; }
         }
         begin_sec = interval;
+        i += 1;
     }
     terminal::disable_raw_mode().unwrap();
+    stdout.queue(ct::cursor::MoveToRow(0)).unwrap();
+    // stdout.queue(ct::terminal::Clear(ct::terminal::ClearType::CurrentLine)).unwrap();
 }
 
 pub fn check_quit_keypress(duration: Duration) -> bool {
@@ -104,3 +129,14 @@ pub fn check_quit_keypress(duration: Duration) -> bool {
     false
 }
 
+// Colors with crossterm
+pub fn example5() -> Result<(), std::io::Error> {
+    use crossterm::style::Stylize;
+    use crossterm::style;
+
+    println!("{}", "Bold".bold().cyan());
+    println!("{}", "Underlined".underlined());
+    println!("{}", "Negative".negative());
+
+    Ok(())
+}
