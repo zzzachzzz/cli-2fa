@@ -3,7 +3,7 @@ use std::time::Duration;
 use termcolor as tc;
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 use dialoguer as dg;
-use indicatif::ProgressBar;
+// use indicatif::ProgressBar;
 use crossterm as ct;
 use crossterm::{
     event, terminal, style::{self, Stylize},
@@ -63,7 +63,7 @@ pub fn example3() {
 }
 
 pub fn example4() {
-    let interval: u64 = 5;
+    let interval: u64 = 30;
 
     let mut stdout = std::io::stdout();
 
@@ -82,23 +82,33 @@ pub fn example4() {
 
     stdout.execute(ct::terminal::Clear(ct::terminal::ClearType::All)).unwrap();
     let (cols, rows) = ct::terminal::size().unwrap();
-    stdout.execute(ct::cursor::MoveTo(cols - 1, rows - 1)).unwrap();
+    // stdout.execute(ct::cursor::MoveTo(cols - 1, rows - 1)).unwrap();
 
-    let bar = ProgressBar::new(interval);
-    stdout.execute(ct::cursor::SavePosition).unwrap();
+    // let bar = ProgressBar::new(interval);
 
     let mut i = 0;
     let duration_1_sec = Duration::new(1, 0);
     terminal::enable_raw_mode().unwrap();
     'infinite: loop {
-        stdout.queue(ct::cursor::MoveTo(0, 1)).unwrap();
-        stdout.queue(style::PrintStyledContent(format!("Output\t\t{}", &i).magenta())).unwrap();
+        // stdout.queue(ct::cursor::MoveTo(0, 1)).unwrap();
+        // stdout.queue(style::PrintStyledContent(format!("Output\t\t{}", &i).magenta())).unwrap();
         // stdout.queue(ct::cursor::MoveToRow(rows)).unwrap();
         // stdout.queue(ct::cursor::RestorePosition).unwrap();
-        stdout.flush().unwrap();
+        // stdout.flush().unwrap();
 
         for sec in (1 .. begin_sec + 1).rev() {
-            bar.set_position(sec);
+            // bar.set_position(sec);
+            let output = format!(
+                "{}sec |{}|",
+                &sec,
+                &std::iter::repeat("█").take(sec as usize).collect::<String>()
+            );
+            stdout
+                .queue(ct::terminal::Clear(ct::terminal::ClearType::CurrentLine)).unwrap()
+                .queue(ct::cursor::MoveToColumn(0)).unwrap()
+                .queue(style::PrintStyledContent(output.cyan())).unwrap();
+
+            stdout.flush().unwrap();
             // Doubles as a sleep, during which we listen for a key event to quit
             if check_quit_keypress(duration_1_sec) { break 'infinite; }
         }
