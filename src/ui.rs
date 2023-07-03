@@ -98,15 +98,27 @@ pub fn example4() {
 
         for sec in (1 .. begin_sec + 1).rev() {
             // bar.set_position(sec);
+
+            let progress_empty_cell = (interval - sec) as usize;
+            let progress_filled_cell = sec as usize;
+            // println!("progress_empty_cell {}:", progress_empty_cell);
+            // println!("progress_filled_cell {}:", progress_filled_cell);
+
+
             let output = format!(
                 "{}sec |{}|",
                 &sec,
-                &std::iter::repeat("█").take(sec as usize).collect::<String>()
+                (
+                    &std::iter::repeat('█').take(progress_filled_cell)
+                    .chain(std::iter::repeat(' ').take(progress_empty_cell))
+                    .collect::<String>()
+                )
             );
             stdout
                 .queue(ct::terminal::Clear(ct::terminal::ClearType::CurrentLine)).unwrap()
                 .queue(ct::cursor::MoveToColumn(0)).unwrap()
-                .queue(style::PrintStyledContent(output.cyan())).unwrap();
+                .queue(style::PrintStyledContent(output.cyan())).unwrap()
+                .queue(ct::cursor::Hide).unwrap();
 
             stdout.flush().unwrap();
             // Doubles as a sleep, during which we listen for a key event to quit

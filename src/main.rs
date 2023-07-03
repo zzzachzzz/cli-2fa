@@ -1,35 +1,11 @@
-/*
-use std::io::{stdout, Write};
-use crossterm::{
-    ExecutableCommand, QueueableCommand,
-    terminal, cursor, style::{self, Stylize}, Result
-};
-
-fn main() -> Result<()> {
-  let mut stdout = stdout();
-
-  stdout.execute(terminal::Clear(terminal::ClearType::All))?;
-
-  for y in 0..40 {
-    for x in 0..150 {
-      if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
-        // in this loop we are more efficient by not flushing the buffer.
-        stdout
-          .queue(cursor::MoveTo(x,y))?
-          .queue(style::PrintStyledContent( "█".magenta()))?;
-      }
-    }
-  }
-  stdout.flush()?;
-  Ok(())
-}
-*/
 #![allow(dead_code, unused_imports)]
 use std::path::PathBuf;
 use clap::{Parser, Subcommand};
+use keyring::{Entry, Result};
 
 mod totp;
 mod ui;
+mod chatgpt;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -65,7 +41,21 @@ fn main() {
     // let otp = totp::generate_totp(&secret);
     // println!("{}", &otp);
 
+    // _ = ui::example1();
+    // _ = ui::example2();
+    // _ = ui::example3();
     _ = ui::example4();
     // _ = ui::example5();
     // _ = ui::instantfn();
+    // let _ = try_keyring();
+    // let _ = chatgpt::the_main();
+}
+
+fn try_keyring() -> Result<()> {
+    let entry = Entry::new("my_service", "my_name")?;
+    entry.set_password("topS3cr3tP4$$w0rd")?;
+    let password = entry.get_password()?;
+    println!("My password is '{}'", password);
+    // entry.delete_password()?;
+    Ok(())
 }

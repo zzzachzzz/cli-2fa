@@ -14,6 +14,7 @@ data-encoding = "2.3.3"
 dialoguer = "0.10.2"
 hmac = "0.12.1"
 indicatif = "0.17.2"
+keyring = "2.0.4"
 sha1 = "0.10.5"
 termcolor = "1.1.3"
 
