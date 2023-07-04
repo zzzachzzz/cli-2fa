@@ -309,6 +309,7 @@ dependencies = [
  "hmac",
  "indicatif",
  "keyring",
+ "rand",
  "sha1",
  "termcolor",
 ]

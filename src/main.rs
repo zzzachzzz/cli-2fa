@@ -1,11 +1,11 @@
 #![allow(dead_code, unused_imports)]
 use std::path::PathBuf;
 use clap::{Parser, Subcommand};
-use keyring::{Entry, Result};
 
 mod totp;
 mod ui;
 mod chatgpt;
+mod keyring;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -44,18 +44,12 @@ fn main() {
     // _ = ui::example1();
     // _ = ui::example2();
     // _ = ui::example3();
-    _ = ui::example4();
+    // _ = ui::example4();
     // _ = ui::example5();
     // _ = ui::instantfn();
-    // let _ = try_keyring();
+    let res = keyring::get_keyring_entry_password();
+    let s = res.unwrap();
+    println!("s {}:", s);
     // let _ = chatgpt::the_main();
 }
 
-fn try_keyring() -> Result<()> {
-    let entry = Entry::new("my_service", "my_name")?;
-    entry.set_password("topS3cr3tP4$$w0rd")?;
-    let password = entry.get_password()?;
-    println!("My password is '{}'", password);
-    // entry.delete_password()?;
-    Ok(())
-}
