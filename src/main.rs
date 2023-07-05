@@ -6,6 +6,7 @@ mod totp;
 mod ui;
 mod chatgpt;
 mod keyring;
+mod secret;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -47,9 +48,17 @@ fn main() {
     // _ = ui::example4();
     // _ = ui::example5();
     // _ = ui::instantfn();
-    let res = keyring::get_keyring_entry_password();
-    let s = res.unwrap();
-    println!("s {}:", s);
-    // let _ = chatgpt::the_main();
+    // let res = keyring::get_keyring_entry_password();
+    // let s = res.unwrap();
+    // println!("s {}:", s);
+
+    let pass = secret::generate_random_password();
+    let random_password_str: &str = std::str::from_utf8(&pass).unwrap();
+    println!("random_password_str: {}", random_password_str);
+    let (encrypted, nonce) = secret::encrypt("foobar", &pass).unwrap();
+    println!("nonce: {:?}", nonce);
+    println!("encrypted: {}", encrypted);
+    let decrypted = secret::decrypt(encrypted.as_str(), &pass, &nonce).unwrap();
+    println!("decrypted: {}", decrypted);
 }
 

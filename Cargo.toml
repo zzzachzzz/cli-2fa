@@ -8,10 +8,12 @@ name = "2fa"
 path = "src/main.rs"
 
 [dependencies]
+aes-gcm = "0.10.2"
 clap = { version = "4.0.29", features = ["derive"] }
 crossterm = "0.25.0"
 data-encoding = "2.3.3"
 dialoguer = "0.10.2"
+hex = "0.4.3"
 hmac = "0.12.1"
 indicatif = "0.17.2"
 keyring = "2.0.4"
