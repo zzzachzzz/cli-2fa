@@ -7,6 +7,7 @@ mod ui;
 mod chatgpt;
 mod keyring;
 mod secret;
+mod storage;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -52,13 +53,28 @@ fn main() {
     // let s = res.unwrap();
     // println!("s {}:", s);
 
-    let pass = secret::generate_random_password();
-    let random_password_str: &str = std::str::from_utf8(&pass).unwrap();
-    println!("random_password_str: {}", random_password_str);
-    let (encrypted, nonce) = secret::encrypt("foobar", &pass).unwrap();
+    // let pass = secret::generate_random_password();
+    // let random_password_str: &str = std::str::from_utf8(&pass).unwrap();
+    // println!("random_password_str: {}", random_password_str);
+    // let (encrypted, nonce) = secret::encrypt("foobar", &pass).unwrap();
+    // println!("nonce: {:?}", nonce);
+    // println!("encrypted: {}", encrypted);
+    // let decrypted = secret::decrypt(encrypted.as_str(), &pass, &nonce).unwrap();
+    // println!("decrypted: {}", decrypted);
+
+    // let x = storage::load_from_file().unwrap();
+    // println!("x: {:?}", x);
+
+    // let x: [u8; 1] = [122];
+
+    let key = secret::generate_key();
+    println!("key: {:?}", key);
+    let nonce = secret::generate_nonce();
     println!("nonce: {:?}", nonce);
-    println!("encrypted: {}", encrypted);
-    let decrypted = secret::decrypt(encrypted.as_str(), &pass, &nonce).unwrap();
-    println!("decrypted: {}", decrypted);
+
+    let entry = keyring::set_keyring_entry(&key, &nonce).unwrap();
+    let res = keyring::get_keyring_entry_key_and_nonce().unwrap();
+    println!("res[0]: {:?}", res.0);
+    println!("res[1]: {:?}", res.1);
 }
 

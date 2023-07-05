@@ -5,32 +5,29 @@ use aes_gcm::{
     },
     Aes256Gcm,
 };
-use aes_gcm::aes::cipher::consts::U12;
 use hex;
 use rand::Rng;
 
-const AES256_KEY_LEN: usize = 32;
-const AES256_NONCE_LEN: usize = 12;
+pub const AES256_KEY_LEN: usize = 32;
+pub const AES256_NONCE_LEN: usize = 12;
 
 pub fn encrypt(
     plaintext: &str,
-    key: &[u8; AES256_KEY_LEN]
-) -> aes_gcm::aead::Result<(String, [u8; AES256_NONCE_LEN])> {
+    key: &[u8; AES256_KEY_LEN],
+    nonce: &[u8; AES256_NONCE_LEN]
+) -> aes_gcm::aead::Result<String> {
     let cipher = Aes256Gcm::new(key.into());
-    let nonce = Aes256Gcm::generate_nonce(&mut OsRng);
+    let nonce = GenericArray::from_slice(nonce);
     let aes_encrypted = cipher.encrypt(&nonce, plaintext.as_ref())?;
     let hex_encoded = hex::encode(aes_encrypted);
 
-    Ok((
-        hex_encoded,
-        nonce.into(),
-    ))
+    Ok(hex_encoded)
 }
 
 pub fn decrypt(
     ciphertext: &str,
     key: &[u8; AES256_KEY_LEN],
-    nonce: &[u8; 12]
+    nonce: &[u8; AES256_NONCE_LEN]
 ) -> aes_gcm::aead::Result<String> {
     let cipher = Aes256Gcm::new(key.into());
     let nonce = GenericArray::from_slice(nonce);
@@ -41,12 +38,16 @@ pub fn decrypt(
     Ok(plaintext)
 }
 
-pub fn generate_random_password() -> [u8; 32] {
+pub fn generate_key() -> [u8; AES256_KEY_LEN] {
     rand::thread_rng()
         .sample_iter(rand::distributions::Alphanumeric)
         .take(AES256_KEY_LEN)
         .collect::<Vec<u8>>()
         .try_into()
         .unwrap()
+}
+
+pub fn generate_nonce() -> [u8; AES256_NONCE_LEN] {
+    Aes256Gcm::generate_nonce(&mut OsRng).into()
 }
 
