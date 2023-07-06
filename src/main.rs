@@ -67,14 +67,21 @@ fn main() {
 
     // let x: [u8; 1] = [122];
 
-    let key = secret::generate_key();
-    println!("key: {:?}", key);
-    let nonce = secret::generate_nonce();
-    println!("nonce: {:?}", nonce);
+    // let key = secret::generate_key();
+    // let nonce = secret::generate_nonce();
 
-    let entry = keyring::set_keyring_entry(&key, &nonce).unwrap();
-    let res = keyring::get_keyring_entry_key_and_nonce().unwrap();
-    println!("res[0]: {:?}", res.0);
-    println!("res[1]: {:?}", res.1);
+    let (key, nonce) = keyring::get_keyring_entry_key_and_nonce().unwrap();
+
+    let storage_ = storage::Storage {
+        map: std::collections::HashMap::from([
+            ("Einar".to_string(), "Norway".to_string()),
+            ("foo".to_string(), "bar".to_string()),
+        ]),
+    };
+
+    // storage::write_to_file(&storage_, &key, &nonce).unwrap();
+
+    let storage_read = storage::read_from_file(&key, &nonce).unwrap();
+    println!("storage_read: {:?}", storage_read);
 }
 
