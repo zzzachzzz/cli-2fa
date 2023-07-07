@@ -5,7 +5,7 @@ use data_encoding::BASE32;
 
 type HmacSha1 = Hmac<Sha1>;
 
-const INTERVAL: u64 = 30;
+pub const INTERVAL: u64 = 30;
 
 pub fn generate_totp(
     secret: &[u8]
@@ -16,7 +16,7 @@ pub fn generate_totp(
 }
 
 /// HOTP Algorithm: https://www.rfc-editor.org/rfc/rfc4226#section-5.3
-fn _generate_totp(
+pub fn _generate_totp(
     secret: &[u8],
     interval: u64,
     timestamp: u64
