@@ -1,3 +1,8 @@
+## Really nice to have features
+* Add secret by reading text from clipboard (crate arboard)
+* Add secret by reading image from clipboard (crate arboard), with the help of zbarimg
+* Support for importing from Google Authenticator, perhap through requiring krissrex/google-authenticator-exporter, or... creating our own exporter & importer
+
 * Functionality for:
   * Add
   * Delete
