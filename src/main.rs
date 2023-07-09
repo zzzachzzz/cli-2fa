@@ -86,10 +86,37 @@ fn main() -> anyhow::Result<()> {
             // data_encoding::BASE32.decode(secret.as_bytes())
             //     .with_context(|| format!("Invalid 2FA secret. Base32 decoding failed."))?;
 
-            let (key, nonce) = keyring::get_keyring_entry_key_and_nonce()?;
+            let (key, nonce) = match keyring::get_keyring_entry_key_and_nonce() {
+                Ok(ok) => ok,
+                Err(err) => match err {
+                    // If no keyring entry exists, create one.
+                    keyring_crate::error::Error::NoEntry => {
+                        // Check for existence of storage file.
+                        // If exists, warn user and abort. Do not overwrite file.
+                        // Manual intervention needed.
+                        if storage::storage_file_exists() {
+                            return Err(anyhow::Error::msg(format!(
+"Keyring entry was missing but storage file exists.
+The keyring entry may have been deleted, and the storage file cannot be decrypted.
+To proceed, move or delete the storage file at \"{filepath}\".",
+                                filepath = storage::get_storage_filepath().display()
+                            )));
+                        }
+
+                        let key = secret::generate_key();
+                        let nonce = secret::generate_nonce();
+                        keyring::set_keyring_entry(&key, &nonce)?;
+                        (key, nonce)
+                    },
+                    _ => return Err(anyhow::Error::new(err)),
+                },
+            };
 
             let mut storage_ = storage::read_from_file(&key, &nonce)
-                .expect("Unable to load storage file");
+                .with_context(|| format!(
+                    "Unable to read storage file at \"{}\"",
+                    storage::get_storage_filepath().display()
+                ))?;
 
             storage_.map.insert(name.clone(), secret);
 
@@ -113,8 +140,8 @@ fn main() -> anyhow::Result<()> {
 
             // In the unlikely event that this fails, inform user that manual intervention is needed
             storage::overwrite_main_file_with_tmp_file()
-                .with_context(|| format!("
-Failed to move file \"{tmp_file}\", to path \"{main_file}\".
+                .with_context(|| format!(
+"Failed to move file \"{tmp_file}\", to path \"{main_file}\".
 Manual intervention is needed!
 The encryption key stored in the keyring
 can only decrypt \"{tmp_file}\".

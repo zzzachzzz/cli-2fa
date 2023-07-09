@@ -27,14 +27,14 @@ pub struct Storage {
     pub map: TotpMap,
 }
 
-// TODO Do better than unwraps to catch decryption errors
 pub fn read_from_file(
     key: &[u8; secret::AES256_KEY_LEN],
     nonce: &[u8; secret::AES256_NONCE_LEN],
 ) -> std::io::Result<Storage> {
     let storage_filepath = get_storage_filepath();
     let file_contents_enc = std::fs::read_to_string(storage_filepath)?;
-    let file_contents_plain = secret::decrypt(&file_contents_enc, &key, &nonce).unwrap();
+    let file_contents_plain = secret::decrypt(&file_contents_enc, &key, &nonce)
+        .expect("Unable to decrypt storage file with provided key and nonce");
     let storage: Storage = serde_json::from_str(&file_contents_plain)?;
 
     Ok(storage)
@@ -110,5 +110,9 @@ pub fn get_storage_filepath_tmp() -> std::path::PathBuf {
     let storage_filepath = project_dir.data_dir().join(STORAGE_FILENAME_TMP);
 
     storage_filepath
+}
+
+pub fn storage_file_exists() -> bool {
+    get_storage_filepath().exists()
 }
 
