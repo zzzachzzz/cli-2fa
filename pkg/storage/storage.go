@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"cli-2fa/internal/secret"
+	"github.com/zzzachzzz/cli-2fa/pkg/secret"
 )
 
 // Storage represents a map of TOTP entries.

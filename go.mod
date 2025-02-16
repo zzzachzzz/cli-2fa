@@ -1,4 +1,4 @@
-module cli-2fa
+module github.com/zzzachzzz/cli-2fa
 
 go 1.24
 

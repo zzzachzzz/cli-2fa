@@ -6,9 +6,9 @@ import (
 	"os"
 	"strings"
 
-	"cli-2fa/internal/keyring"
-	"cli-2fa/internal/secret"
-	"cli-2fa/internal/storage"
+	"github.com/zzzachzzz/cli-2fa/pkg/keyring"
+	"github.com/zzzachzzz/cli-2fa/pkg/secret"
+	"github.com/zzzachzzz/cli-2fa/pkg/storage"
 
 	"github.com/spf13/cobra"
 )

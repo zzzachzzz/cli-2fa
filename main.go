@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"cli-2fa/cmd"
+	"github.com/zzzachzzz/cli-2fa/cmd"
 )
 
 func main() {
