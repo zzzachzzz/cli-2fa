@@ -30,7 +30,7 @@ func GetStorageFilePath() (string, error) {
 }
 
 // ReadStorage decrypts and parses the storage file using the provided key and nonce.
-func ReadStorage(key, nonce []byte) (Store, error) {
+func ReadStorage(key [secret.AES256KeyLen]byte, nonce [secret.AES256NonceLen]byte) (Store, error) {
 	var stg Store
 	path, err := GetStorageFilePath()
 	if err != nil {
@@ -50,7 +50,7 @@ func ReadStorage(key, nonce []byte) (Store, error) {
 }
 
 // WriteStorage encrypts the storage struct in JSON format and writes it to the file.
-func WriteStorage(stg Store, key, nonce []byte) error {
+func WriteStorage(stg Store, key [secret.AES256KeyLen]byte, nonce [secret.AES256NonceLen]byte) error {
 	path, err := GetStorageFilePath()
 	if err != nil {
 		return err

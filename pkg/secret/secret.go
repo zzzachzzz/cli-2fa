@@ -15,8 +15,8 @@ const (
 
 // Encrypt encrypts the plaintext string using AES‑GCM with the provided key and nonce,
 // and returns a hex‑encoded ciphertext.
-func Encrypt(plaintext string, key, nonce []byte) (string, error) {
-	block, err := aes.NewCipher(key)
+func Encrypt(plaintext string, key [AES256KeyLen]byte, nonce [AES256NonceLen]byte) (string, error) {
+	block, err := aes.NewCipher(key[:])
 	if err != nil {
 		return "", err
 	}
@@ -24,18 +24,18 @@ func Encrypt(plaintext string, key, nonce []byte) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	ciphertext := aesgcm.Seal(nil, nonce, []byte(plaintext), nil)
+	ciphertext := aesgcm.Seal(nil, nonce[:], []byte(plaintext), nil)
 	return hex.EncodeToString(ciphertext), nil
 }
 
 // Decrypt decodes the hex‑encoded ciphertext and decrypts it using AES‑GCM
 // with the given key and nonce.
-func Decrypt(ciphertextHex string, key, nonce []byte) (string, error) {
+func Decrypt(ciphertextHex string, key [AES256KeyLen]byte, nonce [AES256NonceLen]byte) (string, error) {
 	ciphertext, err := hex.DecodeString(ciphertextHex)
 	if err != nil {
 		return "", err
 	}
-	block, err := aes.NewCipher(key)
+	block, err := aes.NewCipher(key[:])
 	if err != nil {
 		return "", err
 	}
@@ -43,7 +43,7 @@ func Decrypt(ciphertextHex string, key, nonce []byte) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	plaintext, err := aesgcm.Open(nil, nonce, ciphertext, nil)
+	plaintext, err := aesgcm.Open(nil, nonce[:], ciphertext, nil)
 	if err != nil {
 		return "", err
 	}
@@ -51,15 +51,15 @@ func Decrypt(ciphertextHex string, key, nonce []byte) (string, error) {
 }
 
 // GenerateKey creates a 32‑byte encryption key.
-func GenerateKey() []byte {
+func GenerateKey() [AES256KeyLen]byte {
 	key := make([]byte, AES256KeyLen)
 	_, _ = io.ReadFull(rand.Reader, key)
-	return key
+	return [AES256KeyLen]byte(key)
 }
 
 // GenerateNonce creates a 12‑byte nonce.
-func GenerateNonce() []byte {
+func GenerateNonce() [AES256NonceLen]byte {
 	nonce := make([]byte, AES256NonceLen)
 	_, _ = io.ReadFull(rand.Reader, nonce)
-	return nonce
+	return [AES256NonceLen]byte(nonce)
 }
