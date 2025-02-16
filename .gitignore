@@ -1,2 +1,5 @@
 /target
 /rust-impl/target
+cli-2fa
+# Mac Store file
+.DS_Store
