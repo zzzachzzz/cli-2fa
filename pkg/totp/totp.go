@@ -3,6 +3,7 @@ package totp
 import (
 	"time"
 
+	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 )
 
@@ -12,8 +13,8 @@ func GenerateTOTP(secret string) (string, error) {
 	opts := totp.ValidateOpts{
 		Period:    30,
 		Skew:      1,
-		Digits:    totp.DigitsSix,
-		Algorithm: totp.AlgorithmSHA1,
+		Digits:    otp.DigitsSix,
+		Algorithm: otp.AlgorithmSHA1,
 	}
 	// totp.GenerateCodeCustom automatically decodes the BASE32 secret.
 	return totp.GenerateCodeCustom(secret, time.Now(), opts)

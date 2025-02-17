@@ -8,9 +8,10 @@ import (
 )
 
 func main() {
-
+	// Might be a good error handling / logging solution:
+	// https://github.com/spf13/cobra/issues/914#issuecomment-548411337
 	if err := cmd.Execute(); err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }

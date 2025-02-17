@@ -41,11 +41,12 @@ var addCmd = &cobra.Command{
 		stg, err := storage.ReadStorage(key, nonce)
 		if err != nil {
 			// If the file does not exist, start with an empty store.
-			stg = storage.Store{Map: make(map[string]string)}
+			stg = storage.New()
 		}
 
 		// Insert the new entry.
-		stg.Map[name] = sec
+		// TODO Consider warning on overwrite of entry with same name
+		stg.SetTotpSecret(name, sec)
 
 		// Generate a new nonce for the updated file.
 		newNonce := secret.GenerateNonce()
