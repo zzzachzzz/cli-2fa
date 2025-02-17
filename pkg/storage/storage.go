@@ -1,6 +1,8 @@
 package storage
 
 import (
+	"slices"
+	"maps"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -30,6 +32,10 @@ func (s *Storage) GetTotpSecret(name string) (string, error) {
 
 func (s *Storage) SetTotpSecret(name, totpSecret string) {
 	s.jsonMap[name] = totpSecret
+}
+
+func (s *Storage) ListEntries() []string {
+	return slices.Collect(maps.Keys(s.jsonMap))
 }
 
 // getStorageFilePath returns the path to the encrypted storage file.

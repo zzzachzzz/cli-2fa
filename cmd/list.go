@@ -7,6 +7,9 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+
+	"github.com/zzzachzzz/cli-2fa/pkg/keyring"
+	"github.com/zzzachzzz/cli-2fa/pkg/storage"
 )
 
 // listCmd represents the list command
@@ -19,8 +22,20 @@ and usage of using your command. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("list called")
+	RunE: func(cmd *cobra.Command, args []string) error {
+		key, nonce, err := keyring.GetKeyringEntry()
+		if err != nil {
+			return err
+		}
+		stg, err := storage.ReadStorage(key, nonce)
+		if err != nil {
+			return err
+		}
+		entries := stg.ListEntries()
+		for _, entry := range entries {
+			fmt.Println(entry)
+		}
+		return nil
 	},
 }
 
